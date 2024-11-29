@@ -1,4 +1,4 @@
-name: Go CI
+name: Go CI  # O el nombre que prefieras
 
 on:
   push:
@@ -33,4 +33,4 @@ jobs:
       run: go fmt ./...  # Formatea el código para mantenerlo consistente
 
     - name: Run tests
-      run: go test ./... -v  # Ejecuta los tests y muestra el resultado de manera detallada
+      run: go test ./... -v

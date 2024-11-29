@@ -1,36 +1,42 @@
-name: Go CI
+name: Build and Push Docker Image
 
 on:
   push:
     branches:
-      - main
+      - main  # Se activa cuando hay un push a la rama principal
   pull_request:
     branches:
-      - main
+      - main  # También se activa cuando hay un pull request hacia la rama principal
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3  # Usamos v3 para asegurarnos de que sea la versión más reciente
+      # 1. Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.20'  # Cambia la versión si necesitas una diferente
+      # 2. Set up Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Verify Go installation
-      run: go version  # Verifica que Go está instalado correctamente
+      # 3. Log in to Docker Hub (si vas a subir la imagen a Docker Hub)
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Añade el nombre de usuario de Docker Hub en los secrets de GitHub
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Añade el token de acceso de Docker Hub en los secrets de GitHub
 
-    - name: Install dependencies
-      run: |
-        go mod tidy   # Esto descarga las dependencias necesarias
-        go mod vendor # Si usas vendor, esto asegura que estén allí
+      # 4. Build and push the Docker image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true  # Establece "true" para subir la imagen a Docker Hub
+          tags: yourdockerhubusername/my-docker-scout:latest  # Etiqueta de la imagen (puedes personalizarla)
 
-    - name: Lint code
-      run: go fmt ./...  # Formatea el código para mantenerlo consistente
-
-    - name: Run tests
-      run: go test ./... -v  # Ejecuta los tests y muestra el resultado de manera detallada
+      # 5. Verificar la construcción de la imagen (opcional)
+      - name: Verify Docker image
+        run: docker images  # Muestra las imágenes construidas para confirmar que la imagen fue creada

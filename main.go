@@ -5,7 +5,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -77,6 +77,13 @@ func runVersion() error {
 }
 
 func runScoutAnalysis(dockerCli command.Cli, image string) error {
+	// Actualizar Docker Scout antes de ejecutar el análisis (si es necesario)
+	fmt.Printf("Updating Docker Scout to the latest version...\n")
+	updateCmd := exec.Command("docker", "scout", "upgrade")
+	if err := updateCmd.Run(); err != nil {
+		return fmt.Errorf("error updating Docker Scout: %w", err)
+	}
+
 	// Ejecutar el comando de Docker Scout
 	cmd := exec.Command("docker", "scout", "analyze", image)
 	cmd.Stdout = os.Stdout
